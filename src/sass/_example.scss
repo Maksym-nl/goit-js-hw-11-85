@@ -60,11 +60,12 @@ a.photo-card {
   background-color: darkcyan;
 }
 
+.is-hiden{
+  opacity: 0;
+}
+
 .info{
   :hover, :focus{
 color: #ff6b0a;
   }
-}
-.is-hiden{
-  opacity: 0;
 }
