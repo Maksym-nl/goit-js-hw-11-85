@@ -18,6 +18,7 @@ const lightbox = new SimpleLightbox('.gallery a');
 
 function getPhotos(event) {
   event.preventDefault();
+  loadMore.classList.add('is-hiden');
   const { searchQuery } = event.currentTarget.elements;
   if (searchQuery.value.trim() === '') {
     return;
@@ -26,18 +27,29 @@ function getPhotos(event) {
   currentPage = 1;
   query = searchQuery.value;
   getImg(query, currentPage)
-    .then(data => {
-      if (data.hits.length !== 0) {
-        creatMarkUp(data.hits);
-        loadMore.classList.remove('is-hiden');
-        currenHits = data.totalHits;
-        currenHits -=40
-      } else {
-        Notify.failure(
+    .then(({hits, totalHits}) => {
+      if (hits.length === 0) {
+         Notify.failure(
             "Sorry, there are no images matching your search query. Please try again."
         );
+        return;
+        currenHits = data.totalHits;
+        currenHits -=40
+      // } else {
+       // Notify.failure(
+      //     "Sorry, there are no images matching your search query. Please try again."
+      // );
       }
-    })
+      creatMarkUp(hits);
+      if (currentPage === Math.ceil(totalHits / 40)) {
+        Notify.failure(
+        "We're sorry, but you've reached the end of search results."
+        );
+        loadMore.classList.add('is-hiden');
+        return
+      }
+         loadMore.classList.remove('is-hiden');
+           })
     .catch(error => console.log(error.message));
 }
 
@@ -79,16 +91,16 @@ function onLoadMore() {
   currenHits -= 40;
   currentPage += 1;
   getImg(query, currentPage)
-    .then(data => {
-      creatMarkUp(data.hits);
-      if (currenHits <= 0) {
+    .then(({hits, totalHits}) => {
+      creatMarkUp(hits);
+      if (currentPage === Math.ceil(totalHits / 40)) {
         Notify.failure(
-          "We're sorry, but you've reached the end of search results."
-       );
+        "We're sorry, but you've reached the end of search results."
+        );
         loadMore.classList.add('is-hiden');
+        return
       }
-     
-    })
+     })
     .catch(error => console.log(error.message));
 }
 
